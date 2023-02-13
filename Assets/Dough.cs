@@ -8,6 +8,10 @@ public class Dough : MonoBehaviour
     public int level;
     public float exp; //level이 오르는 기준을 만들기 위한 변수
 
+    //맵 경계
+    public GameObject left_top;
+    public GameObject right_bottom;
+
     //젤리의 exp 수치에 최댓값을 두어 해당 exp 수치까지 도달하게 되면 더이상 exp 증가 작업을 하지 않도록 함
     public float required_exp; //50
     public float max_exp; //100
@@ -42,6 +46,14 @@ public class Dough : MonoBehaviour
             StartCoroutine(Wander());	// 코루틴 실행
         if (isWalking)
             Move();
+
+        float pos_x = transform.position.x;
+        float pos_y = transform.position.y;
+
+        if (pos_x < left_top.transform.position.x || pos_x > right_bottom.transform.position.x)
+            speed_x = -speed_x;
+        if (pos_y > left_top.transform.position.y || pos_y < right_bottom.transform.position.y)
+            speed_y = -speed_y;
     }
 
     void Move()
@@ -76,14 +88,6 @@ public class Dough : MonoBehaviour
         isWandering = false;
     }
 
-    void OnTriggerEnter2D(Collider2D collision)
-    {
-        if (collision.gameObject.name.Contains("Bottom") || collision.gameObject.name.Contains("Top"))
-            speed_y = -speed_y;
-        else if (collision.gameObject.name.Contains("Left") || collision.gameObject.name.Contains("Right"))
-            speed_x = -speed_x;
-    }
-
     void OnMouseDown()
     {
         isWalking = false;
@@ -114,5 +118,40 @@ public class Dough : MonoBehaviour
         if (exp > required_exp * level && level < 3)
             game_manager.ChangeAc(anim, ++level);
     }
+
+
+    //젤리가 드래그 될 경우에만 실행되는 코드 (start)
+    float pick_time; // 단순 클릭과 드래그를 구분하기 위한 변수
+
+    void OnMouseDrag()
+    {
+        pick_time += Time.deltaTime;
+
+        if (pick_time < 0.1f) return; //0.1초 미만 누르고 있을 경우 단순클릭으로 인지
+
+        //0.1초 이상 누르고 있을 경우 드래그로 인지
+        isWalking = false;
+        anim.SetBool("isWalk", false);
+        anim.SetTrigger("doTouch");
+
+        Vector3 mouse_pos = Input.mousePosition;
+        Vector3 point = Camera.main.ScreenToWorldPoint(new Vector3(mouse_pos.x, mouse_pos.y, mouse_pos.y)); //ScreenToWorldPoint를 통해 마우스의 위치를 월드 좌표계로 변경
+
+        transform.position = point;
+    }
+
+    //반죽의 위치가 마우스 포인터에 의해 맵의 경계를 벗어 날 경우, 맵 중앙으로 위치를 초기화 시키는 기능
+    void OnMouseUp()
+    {
+        pick_time = 0;
+
+        float pos_x = transform.position.x;
+        float pos_y = transform.position.y;
+
+        if (pos_x < left_top.transform.position.x || pos_x > right_bottom.transform.position.x ||
+            pos_y > left_top.transform.position.y || pos_y < right_bottom.transform.position.y)
+            transform.position = new Vector3(0, -1, 0);
+    }
+    //젤리가 드래그 될 경우에만 실행되는 코드 (end)
 
 }
