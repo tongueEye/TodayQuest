@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Dough : MonoBehaviour
 {
-    public int id; //젤리의 level에 따라 얻는 재화의 크기를 다르게 하기 위해서 Jelly 오브젝트에 새로운 변수 id와 level을 추가
+    public int id; //반죽의 level에 따라 얻는 재화의 크기를 다르게 하기 위해서 반죽 오브젝트에 새로운 변수 id와 level을 추가
     public int level;
     public float exp; //level이 오르는 기준을 만들기 위한 변수
 
@@ -12,7 +12,7 @@ public class Dough : MonoBehaviour
     public GameObject left_top;
     public GameObject right_bottom;
 
-    //젤리의 exp 수치에 최댓값을 두어 해당 exp 수치까지 도달하게 되면 더이상 exp 증가 작업을 하지 않도록 함
+    //반죽의 exp 수치에 최댓값을 두어 해당 exp 수치까지 도달하게 되면 더이상 exp 증가 작업을 하지 않도록 함
     public float required_exp; //50
     public float max_exp; //100
 
@@ -59,9 +59,9 @@ public class Dough : MonoBehaviour
     void Move()
     {
         if (speed_x != 0)
-            sprite.flipX = speed_x < 0; // x축 속도에 따라 Spite 이미지를 뒤집음
+            sprite.flipX = speed_x < 0; // x축 속도에 따라 Sprite 이미지를 뒤집음
 
-        transform.Translate(speed_x, speed_y, speed_y);	// 젤리 이동
+        transform.Translate(speed_x, speed_y, speed_y);	// 반죽 이동
     }
 
     IEnumerator Wander()
@@ -96,14 +96,8 @@ public class Dough : MonoBehaviour
 
         if (exp < max_exp) ++exp; //시간이 지남에 따라 자동적으로 exp를 얻는 시스템 구현
 
-        if (game_manager.jelatin < 99999999)
-            game_manager.jelatin += (id + 1) * level;
+        game_manager.GetFlour(id, level);
 
-        //GameManager 배열 변수 level_ac의 최대 크기는 3
-        //level up에 필요한 exp를 설정 (50)
-        /*
-        if (++exp > 50 * level && level < 3)
-            game_manager.ChangeAc(anim, ++level);*/
     }
 
     void Update()
@@ -120,7 +114,7 @@ public class Dough : MonoBehaviour
     }
 
 
-    //젤리가 드래그 될 경우에만 실행되는 코드 (start)
+    //반죽이 드래그 될 경우에만 실행되는 코드 (start)
     float pick_time; // 단순 클릭과 드래그를 구분하기 위한 변수
 
     void OnMouseDrag()
@@ -145,6 +139,14 @@ public class Dough : MonoBehaviour
     {
         pick_time = 0;
 
+        //반죽을 sell 버튼 위에 올리면 isSell 변수는 true로 바뀌고
+        if (game_manager.isSell)
+        {
+            game_manager.GetGold(id, level); //GetGold() 함수를 호출해 골드를 얻고, 반죽 오브젝트는 Destroy() 함수에 의해 사라짐
+
+            Destroy(gameObject);
+        }
+
         float pos_x = transform.position.x;
         float pos_y = transform.position.y;
 
@@ -152,6 +154,6 @@ public class Dough : MonoBehaviour
             pos_y > left_top.transform.position.y || pos_y < right_bottom.transform.position.y)
             transform.position = new Vector3(0, -1, 0);
     }
-    //젤리가 드래그 될 경우에만 실행되는 코드 (end)
+    //반죽이 드래그 될 경우에만 실행되는 코드 (end)
 
 }
