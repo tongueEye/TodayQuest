@@ -23,6 +23,13 @@ public class GameManager : MonoBehaviour
     //반죽의 가격을 저장하기 위한 배열 변수
     public int[] dough_goldlist;
 
+    public Image dough_panel;
+    public Image plant_panel;
+    public Image option_panel;
+
+    Animator dough_anim;
+    Animator plant_anim;
+
 
     public void ChangeAc(Animator anim, int level)
     {
@@ -39,6 +46,8 @@ public class GameManager : MonoBehaviour
     void Awake()
     {
         isSell = false;
+        dough_anim = dough_panel.GetComponent<Animator>();
+        plant_anim = plant_panel.GetComponent<Animator>();
     }
 
     public void CheckSell()
@@ -64,6 +73,64 @@ public class GameManager : MonoBehaviour
 
         if (flour > max_flour)
             flour = max_flour;
+    }
+
+
+    bool isDoughClick;
+    bool isPlantClick;
+
+    //각각 버튼이 클릭 될 시 발생하며 이전에 만들었던 창을 오르 내리는 역할을 수행
+    public void ClickDoughBtn()
+    {
+        if (isPlantClick)
+        {
+            plant_anim.SetTrigger("doHide");
+            isPlantClick = false;
+        }
+
+        if (isDoughClick)
+            dough_anim.SetTrigger("doHide");
+        else
+            dough_anim.SetTrigger("doShow");
+
+        isDoughClick = !isDoughClick;
+    }
+
+    public void ClickPlantBtn()
+    {
+        if (isDoughClick)
+        {
+            dough_anim.SetTrigger("doHide");
+            isDoughClick = false;
+        }
+
+        if (isPlantClick)
+            plant_anim.SetTrigger("doHide");
+        else
+            plant_anim.SetTrigger("doShow");
+
+        isPlantClick = !isPlantClick;
+    }
+
+    bool isOption;
+
+    //Esc 버튼이 눌리게 될 경우 3가지 경로로 나뉘게 되며 만약 이미 띄워져 있는 UI 창이 있다면 Option Panel을 활성화 시키는 대신 이미 띄워져 있는 창을 내림
+    void Option()
+    {
+        isOption = !isOption;
+
+        option_panel.gameObject.SetActive(isOption);
+        Time.timeScale = isOption == true ? 0 : 1;
+    }
+
+    void Update()
+    {
+        if (Input.GetButtonDown("Cancel"))
+        {
+            if (isDoughClick) ClickDoughBtn();
+            else if (isPlantClick) ClickPlantBtn();
+            else Option();
+        }
     }
 
 }
