@@ -90,6 +90,8 @@ public class Dough : MonoBehaviour
 
     void OnMouseDown()
     {
+        if (!game_manager.isLive) return;
+
         isWalking = false;
         anim.SetBool("isWalk", false);
         anim.SetTrigger("doTouch");
@@ -113,12 +115,13 @@ public class Dough : MonoBehaviour
             game_manager.ChangeAc(anim, ++level);
     }
 
-
     //반죽이 드래그 될 경우에만 실행되는 코드 (start)
     float pick_time; // 단순 클릭과 드래그를 구분하기 위한 변수
 
     void OnMouseDrag()
     {
+        if (!game_manager.isLive) return;
+
         pick_time += Time.deltaTime;
 
         if (pick_time < 0.1f) return; //0.1초 미만 누르고 있을 경우 단순클릭으로 인지
@@ -137,6 +140,8 @@ public class Dough : MonoBehaviour
     //반죽의 위치가 마우스 포인터에 의해 맵의 경계를 벗어 날 경우, 맵 중앙으로 위치를 초기화 시키는 기능
     void OnMouseUp()
     {
+        if (!game_manager.isLive) return;
+
         pick_time = 0;
 
         //반죽을 sell 버튼 위에 올리면 isSell 변수는 true로 바뀌고

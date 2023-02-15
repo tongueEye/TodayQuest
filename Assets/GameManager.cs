@@ -43,11 +43,15 @@ public class GameManager : MonoBehaviour
     //Pointer Exit는 마우스 포인터가 해당 버튼 영역에서 벗어날 경우 발생하는 이벤트
     public bool isSell;
 
+    public bool isLive; // 게임의 활성화/비활성화 상태를 구분하기 위한 변수
+
     void Awake()
     {
         isSell = false;
         dough_anim = dough_panel.GetComponent<Animator>();
         plant_anim = plant_panel.GetComponent<Animator>();
+
+        isLive = true;
     }
 
     public void CheckSell()
@@ -86,6 +90,7 @@ public class GameManager : MonoBehaviour
         {
             plant_anim.SetTrigger("doHide");
             isPlantClick = false;
+            isLive = true;
         }
 
         if (isDoughClick)
@@ -94,6 +99,7 @@ public class GameManager : MonoBehaviour
             dough_anim.SetTrigger("doShow");
 
         isDoughClick = !isDoughClick;
+        isLive = !isLive;
     }
 
     public void ClickPlantBtn()
@@ -102,6 +108,7 @@ public class GameManager : MonoBehaviour
         {
             dough_anim.SetTrigger("doHide");
             isDoughClick = false;
+            isLive = true;
         }
 
         if (isPlantClick)
@@ -110,6 +117,7 @@ public class GameManager : MonoBehaviour
             plant_anim.SetTrigger("doShow");
 
         isPlantClick = !isPlantClick;
+        isLive = !isLive;
     }
 
     bool isOption;
@@ -118,6 +126,7 @@ public class GameManager : MonoBehaviour
     void Option()
     {
         isOption = !isOption;
+        isLive = !isLive;
 
         option_panel.gameObject.SetActive(isOption);
         Time.timeScale = isOption == true ? 0 : 1;
