@@ -142,4 +142,46 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    //반죽의 Sprite, 이름, 가격을 저장하기 위한 배열 변수
+    public Sprite[] dough_spritelist;
+    public string[] dough_namelist;
+    public int[] dough_flourlist;
+
+
+    //버튼 클릭에 따른 페이지 이동
+    public Text page_text;
+    public Image unlock_group_dough_img;
+    public Text unlock_group_gold_text;
+    public Text unlock_group_name_text;
+
+    int page;
+
+    //버튼이 클릭될 시 호출되며 page 변수의 값을 증가시키고, ChangePage() 함수를 호출
+    public void PageUp()
+    {
+        if (page >= 13) return;
+
+        ++page;
+        ChangePage();
+    }
+
+    //버튼이 클릭될 시 호출되며 page 변수의 값을 감소시키고, ChangePage() 함수를 호출
+    public void PageDown()
+    {
+        if (page <= 0) return;
+
+        --page;
+        ChangePage();
+    }
+
+    // 각 오브젝트의 Sprite 또는 Text를 변경하여 마치 다음 페이지로 넘어가는 것처럼 구현
+    void ChangePage()
+    {
+        page_text.text = string.Format("#{0:00}", (page + 1));
+        unlock_group_dough_img.sprite = dough_spritelist[page];
+        unlock_group_name_text.text = dough_namelist[page];
+        unlock_group_gold_text.text = string.Format("{0:n0}", dough_goldlist[page]);
+
+        unlock_group_dough_img.SetNativeSize(); //Sprite Image가 깨지는 현상 방지
+    }
 }
