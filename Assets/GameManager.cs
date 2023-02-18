@@ -13,8 +13,8 @@ public class GameManager : MonoBehaviour
 
     void LateUpdate()
     {
-        flour_text.text = string.Format("{0:n0}", Mathf.SmoothStep(float.Parse(flour_text.text), flour, 0.5f));
-        gold_text.text = string.Format("{0:n0}", Mathf.SmoothStep(float.Parse(gold_text.text), gold, 0.5f));
+        flour_text.text = string.Format("{0:n0}", (int)Mathf.SmoothStep(float.Parse(flour_text.text), flour, 0.5f));
+        gold_text.text = string.Format("{0:n0}", (int)Mathf.SmoothStep(float.Parse(gold_text.text), gold, 0.5f));
     }
 
 
@@ -45,13 +45,35 @@ public class GameManager : MonoBehaviour
 
     public bool isLive; // 게임의 활성화/비활성화 상태를 구분하기 위한 변수
 
+    // Lock Group 오브젝트를 컨트롤하기 위한 변수
+    public GameObject lock_group;
+    public Image lock_group_dough_img;
+    public Text lock_group_flour_text;
+
+    bool[] dough_unlock_list; //반죽의 해금 상태를 확인하기 위한 배열
+
     void Awake()
     {
         isSell = false;
+
         dough_anim = dough_panel.GetComponent<Animator>();
         plant_anim = plant_panel.GetComponent<Animator>();
 
         isLive = true;
+
+        flour_text.text = flour.ToString();
+        gold_text.text = gold.ToString();
+        unlock_group_gold_text.text = dough_goldlist[0].ToString();
+        lock_group_flour_text.text = dough_flourlist[0].ToString();
+
+        dough_unlock_list = new bool[14];
+
+        for (int i = 0; i < 14; ++i)
+            if (PlayerPrefs.HasKey(i.ToString()))
+                dough_unlock_list[i] = true;
+        lock_group.gameObject.SetActive(!dough_unlock_list[page]);
+
+        //PlayerPrefs.DeleteAll(); //save 초기화 코드 (테스트 용)
     }
 
     public void CheckSell()
@@ -177,11 +199,41 @@ public class GameManager : MonoBehaviour
     // 각 오브젝트의 Sprite 또는 Text를 변경하여 마치 다음 페이지로 넘어가는 것처럼 구현
     void ChangePage()
     {
-        page_text.text = string.Format("#{0:00}", (page + 1));
-        unlock_group_dough_img.sprite = dough_spritelist[page];
-        unlock_group_name_text.text = dough_namelist[page];
-        unlock_group_gold_text.text = string.Format("{0:n0}", dough_goldlist[page]);
+        lock_group.gameObject.SetActive(!dough_unlock_list[page]);
 
-        unlock_group_dough_img.SetNativeSize(); //Sprite Image가 깨지는 현상 방지
+        page_text.text = string.Format("#{0:00}", (page + 1));
+
+        // 해금 상태에 따라 상황에 맞는 인터페이스를 보여줄 수 있도록 함
+        if (lock_group.activeSelf)
+        {
+            lock_group_dough_img.sprite = dough_spritelist[page];
+            lock_group_flour_text.text = string.Format("{0:n0}", dough_flourlist[page]);
+
+            lock_group_dough_img.SetNativeSize();
+        }
+
+        else
+        {
+            unlock_group_dough_img.sprite = dough_spritelist[page];
+            unlock_group_name_text.text = dough_namelist[page];
+            unlock_group_gold_text.text = string.Format("{0:n0}", dough_goldlist[page]);
+
+            unlock_group_dough_img.SetNativeSize(); //Sprite Image가 깨지는 현상 방지
+        }
     }
+
+    // 구입 버튼 클릭 시 호출되며, 현재 소지하고 있는 flour의 값에 따라 젤리를 해금시킬 수 있음.
+    public void Unlock()
+    {
+        if (flour < dough_flourlist[page]) return;
+
+        dough_unlock_list[page] = true;
+        ChangePage();
+
+        flour -= dough_flourlist[page];
+
+        PlayerPrefs.SetInt(page.ToString(), 1);
+    }
+
+
 }

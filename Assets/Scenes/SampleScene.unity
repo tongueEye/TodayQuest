@@ -993,7 +993,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &515546887
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1326,7 +1326,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 566069582}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 612251172}
+        m_TargetAssemblyTypeName: GameManager, Assembly-CSharp
+        m_MethodName: Unlock
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &566069582
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1428,6 +1440,9 @@ MonoBehaviour:
   option_panel: {fileID: 1275893432}
   isSell: 0
   isLive: 0
+  lock_group: {fileID: 515546886}
+  lock_group_dough_img: {fileID: 1285845588}
+  lock_group_flour_text: {fileID: 912600027}
   max_gold: 99999999
   max_flour: 99999999
   dough_spritelist:
@@ -3663,6 +3678,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 4517202609877066033, guid: 0b29bec369dd2b5458d9a9c9ad15a9d3, type: 3}
+      propertyPath: id
+      value: 4
+      objectReference: {fileID: 0}
     - target: {fileID: 4517202609877066033, guid: 0b29bec369dd2b5458d9a9c9ad15a9d3, type: 3}
       propertyPath: left_top
       value: 
