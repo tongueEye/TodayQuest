@@ -1,0 +1,32 @@
+{
+    "flour": 552,
+    "gold": 350,
+    "dough_unlock_list": [
+        true,
+        true,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+    ],
+    "dough_list": [
+        {
+            "id": 1,
+            "level": 2,
+            "exp": 79.34121704101563,
+            "pos": {
+                "x": -0.3789452910423279,
+                "y": -0.7668648958206177,
+                "z": -0.7668648958206177
+            }
+        }
+    ]
+}

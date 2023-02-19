@@ -5,6 +5,8 @@ using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
+    public static GameManager instance;
+
     public int flour;
     public int gold;
 
@@ -50,12 +52,18 @@ public class GameManager : MonoBehaviour
     public Image lock_group_dough_img;
     public Text lock_group_flour_text;
 
-    bool[] dough_unlock_list; //반죽의 해금 상태를 확인하기 위한 배열
+    public bool[] dough_unlock_list; //반죽의 해금 상태를 확인하기 위한 배열
 
     public List<Dough> dough_list = new List<Dough>(); // 반죽을 사고 팜에 따라 현재 생성되어 있는 반죽을 저장하고 관리하기 위한 리스트
+    public List<Data> dough_data_list = new List<Data>();
+
+    DataManager data_manager;
+    public GameObject data_manager_obj;
 
     void Awake()
     {
+        instance = this;
+
         isSell = false;
 
         dough_anim = dough_panel.GetComponent<Animator>();
@@ -76,6 +84,8 @@ public class GameManager : MonoBehaviour
         lock_group.gameObject.SetActive(!dough_unlock_list[page]);
 
         //PlayerPrefs.DeleteAll(); //save 초기화 코드 (테스트 용)
+
+        data_manager = data_manager_obj.GetComponent<DataManager>();
 
     }
 
@@ -256,6 +266,36 @@ public class GameManager : MonoBehaviour
         gold -= dough_goldlist[page];
 
         dough_list.Add(dough);
+    }
+
+    void Start()
+    {
+        //DataManager에 의해 데이터가 로드되기 전에 GameManager가 활성화 되어 빈 데이터를 참조하는 현상을 방지하기 위함
+        Invoke("LoadData", 0.1f); 
+    }
+
+    void LoadData()
+    {
+        lock_group.gameObject.SetActive(!dough_unlock_list[page]);
+
+        for (int i = 0; i < dough_data_list.Count; ++i)
+        {
+            GameObject obj = Instantiate(prefab, dough_data_list[i].pos, Quaternion.identity);
+            Dough dough = obj.GetComponent<Dough>();
+            dough.id = dough_data_list[i].id;
+            dough.level = dough_data_list[i].level;
+            dough.exp = dough_data_list[i].exp;
+            dough.sprite_renderer.sprite = dough_spritelist[dough.id];
+            dough.anim.runtimeAnimatorController = level_ac[dough.level - 1];
+            obj.name = "Dough " + dough.id;
+
+            dough_list.Add(dough);
+        }
+    }
+
+    void OnApplicationQuit()
+    {
+        data_manager.JsonSave();
     }
 
 }

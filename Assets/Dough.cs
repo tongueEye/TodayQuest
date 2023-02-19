@@ -40,6 +40,9 @@ public class Dough : MonoBehaviour
     //(GameManager, LeftTop, RightBottom)
     public GameObject game_manager_obj;
 
+    int flour_delay;
+    bool isGetting;
+
     void Awake()
     {
         left_top = GameObject.Find("LeftTop").gameObject;
@@ -52,6 +55,7 @@ public class Dough : MonoBehaviour
 
         isWandering = false;
         isWalking = false;
+        isGetting = false;
 
         shadow = transform.Find("Shadow").gameObject;
         switch (id)
@@ -117,8 +121,8 @@ public class Dough : MonoBehaviour
 
     IEnumerator Wander()
     {
-        move_delay = 6;
-        move_time = 3;
+        move_delay = Random.Range(3,6);
+        move_time = Random.Range(3,6);
 
         // Translate로 이동할 시 Object가 텔레포트 하는 것을 방지하기 위해 Time.deltaTime을 곱해줌
         speed_x = Random.Range(-0.8f, 0.8f) * Time.deltaTime;
@@ -137,6 +141,19 @@ public class Dough : MonoBehaviour
         anim.SetBool("isWalk", false);	// 이동 애니메이션 종료
 
         isWandering = false;
+    }
+
+    // 자동 재화 획득 기능
+    IEnumerator GetFlour()
+    {
+        flour_delay = 3;
+
+        isGetting = true;
+        game_manager.GetFlour(id, level);
+
+        yield return new WaitForSeconds(flour_delay);
+
+        isGetting = false;
     }
 
     void OnMouseDown()
@@ -164,6 +181,10 @@ public class Dough : MonoBehaviour
         //시간이 지남에 따라 자연스럽게 레벨이 상승
         if (exp > required_exp * level && level < 3)
             game_manager.ChangeAc(anim, ++level);
+
+        //자동 재화 획득 기능
+        if (!isGetting)
+            StartCoroutine(GetFlour());
     }
 
     //반죽이 드래그 될 경우에만 실행되는 코드 (start)
