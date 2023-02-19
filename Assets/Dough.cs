@@ -26,18 +26,69 @@ public class Dough : MonoBehaviour
     bool isWandering;
     bool isWalking;
 
-    SpriteRenderer sprite;
-    Animator anim;
+    public SpriteRenderer sprite_renderer;
+    public Animator anim;
 
-    
+    //반죽에 따라 그림자의 크기와 위치를 다르게 함
+    GameObject shadow;
+    float shadow_pos_y;
+    float shadow_scale_x;
+    float shadow_scale_y;
+
+    //반죽 오브젝트가 prefab으로 변경되었기 때문에
+    //public을 사용해 유니티 프로그램으로 직접 오브젝트 객체를 받아왔던 기존 방식을 변경
+    //(GameManager, LeftTop, RightBottom)
+    public GameObject game_manager_obj;
 
     void Awake()
     {
-        sprite = GetComponent<SpriteRenderer>();
+        left_top = GameObject.Find("LeftTop").gameObject;
+        right_bottom = GameObject.Find("RightBottom").gameObject;
+        game_manager_obj = GameObject.Find("GameManager").gameObject;
+        game_manager = game_manager_obj.GetComponent<GameManager>();
+
+        sprite_renderer = GetComponent<SpriteRenderer>();
         anim = GetComponent<Animator>();
 
         isWandering = false;
         isWalking = false;
+
+        shadow = transform.Find("Shadow").gameObject;
+        switch (id)
+        {
+            case 8:
+                {
+                    shadow_pos_y = -0.75f;
+                    shadow_scale_x = 0.9f;
+                    shadow_scale_y = 1.0f;
+                    break;
+                }
+            case 9:
+                {
+                    shadow_pos_y = -0.75f;
+                    shadow_scale_x = 0.9f;
+                    shadow_scale_y = 1.0f;
+                    break;
+                }
+            case 12:
+                {
+                    shadow_pos_y = -0.72f;
+                    shadow_scale_x = 1.2f;
+                    shadow_scale_y = 1.2f;
+                    break;
+                }
+            default:
+                {
+                    shadow_pos_y = -0.75f;
+                    shadow_scale_x = 1.1f;
+                    shadow_scale_y = 1.0f;
+                    break;
+                }
+
+        }
+
+        shadow.transform.localPosition = new Vector3(0, shadow_pos_y, 0);
+        shadow.transform.localScale = new Vector3(shadow_scale_x, shadow_scale_y, 0);
     }
 
     void FixedUpdate()
@@ -59,7 +110,7 @@ public class Dough : MonoBehaviour
     void Move()
     {
         if (speed_x != 0)
-            sprite.flipX = speed_x < 0; // x축 속도에 따라 Sprite 이미지를 뒤집음
+            sprite_renderer.flipX = speed_x < 0; // x축 속도에 따라 Sprite 이미지를 뒤집음
 
         transform.Translate(speed_x, speed_y, speed_y);	// 반죽 이동
     }

@@ -235,5 +235,20 @@ public class GameManager : MonoBehaviour
         PlayerPrefs.SetInt(page.ToString(), 1);
     }
 
+    // ¹ÝÁ×(»§) ±¸¸Å ±â´É
+    public GameObject prefab;
+
+    public void BuyDough()
+    {
+        if (gold < dough_goldlist[page]) return;
+
+        GameObject obj = Instantiate(prefab, new Vector3(0, 0, 0), Quaternion.identity);
+        Dough dough = obj.GetComponent<Dough>();
+        obj.name = "Dough " + page;
+        dough.id = page;
+        dough.sprite_renderer.sprite = dough_spritelist[page];
+
+        gold -= dough_goldlist[page];
+    }
 
 }
