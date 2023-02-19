@@ -198,7 +198,7 @@ public class Dough : MonoBehaviour
         //반죽을 sell 버튼 위에 올리면 isSell 변수는 true로 바뀌고
         if (game_manager.isSell)
         {
-            game_manager.GetGold(id, level); //GetGold() 함수를 호출해 골드를 얻고, 반죽 오브젝트는 Destroy() 함수에 의해 사라짐
+            game_manager.GetGold(id, level, this); //GetGold() 함수를 호출해 골드를 얻고, 반죽 오브젝트는 Destroy() 함수에 의해 사라짐
 
             Destroy(gameObject);
         }

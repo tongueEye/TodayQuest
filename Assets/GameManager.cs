@@ -52,6 +52,8 @@ public class GameManager : MonoBehaviour
 
     bool[] dough_unlock_list; //반죽의 해금 상태를 확인하기 위한 배열
 
+    public List<Dough> dough_list = new List<Dough>(); // 반죽을 사고 팜에 따라 현재 생성되어 있는 반죽을 저장하고 관리하기 위한 리스트
+
     void Awake()
     {
         isSell = false;
@@ -74,6 +76,7 @@ public class GameManager : MonoBehaviour
         lock_group.gameObject.SetActive(!dough_unlock_list[page]);
 
         //PlayerPrefs.DeleteAll(); //save 초기화 코드 (테스트 용)
+
     }
 
     public void CheckSell()
@@ -83,12 +86,14 @@ public class GameManager : MonoBehaviour
 
     public int max_gold;
 
-    public void GetGold(int id, int level)
+    public void GetGold(int id, int level, Dough dough)
     {
         gold += dough_goldlist[id] * level;
 
         if (gold > max_gold)
             gold = max_gold;
+
+        dough_list.Remove(dough);
     }
 
     public int max_flour;
@@ -249,6 +254,8 @@ public class GameManager : MonoBehaviour
         dough.sprite_renderer.sprite = dough_spritelist[page];
 
         gold -= dough_goldlist[page];
+
+        dough_list.Add(dough);
     }
 
 }
