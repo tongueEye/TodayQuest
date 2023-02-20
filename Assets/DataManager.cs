@@ -14,6 +14,10 @@ public class SaveData
 
     public int num_level;
     public int click_level;
+
+    public float bgm_vol;
+    public float sfx_vol;
+
 }
 
 
@@ -59,6 +63,9 @@ public class DataManager : MonoBehaviour
                 GameManager.instance.num_level = save_data.num_level;
                 GameManager.instance.click_level = save_data.click_level;
 
+                SoundManager.instance.bgm_slider.value = save_data.bgm_vol;
+                SoundManager.instance.sfx_slider.value = save_data.sfx_vol;
+
             }
         }
     }
@@ -80,6 +87,9 @@ public class DataManager : MonoBehaviour
 
         save_data.num_level = GameManager.instance.num_level;
         save_data.click_level = GameManager.instance.click_level;
+
+        save_data.bgm_vol = SoundManager.instance.bgm_slider.value;
+        save_data.sfx_vol = SoundManager.instance.sfx_slider.value;
 
         string json = JsonUtility.ToJson(save_data, true);
 

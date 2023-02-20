@@ -189,6 +189,8 @@ public class Dough : MonoBehaviour
 
         game_manager.GetFlour(id, level);
 
+        SoundManager.instance.PlaySound("Touch");
+
     }
 
 

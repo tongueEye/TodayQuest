@@ -134,6 +134,7 @@ public class GameManager : MonoBehaviour
         //Dough 스크립트에서 Animator 객체와 level을 받아와
         //runtimeAnimatorController를 통해 해당젤리의 레벨에 따라 Animator를 변경
         anim.runtimeAnimatorController = level_ac[level - 1];
+        SoundManager.instance.PlaySound("Grow");
     }
 
 
@@ -145,6 +146,8 @@ public class GameManager : MonoBehaviour
             gold = max_gold;
 
         dough_list.Remove(dough);
+
+        SoundManager.instance.PlaySound("Sell");
     }
 
 
@@ -181,6 +184,8 @@ public class GameManager : MonoBehaviour
 
         isDoughClick = !isDoughClick;
         isLive = !isLive;
+
+        SoundManager.instance.PlaySound("Button");
     }
 
     public void ClickPlantBtn()
@@ -199,17 +204,21 @@ public class GameManager : MonoBehaviour
 
         isPlantClick = !isPlantClick;
         isLive = !isLive;
+
+        SoundManager.instance.PlaySound("Button");
     }
 
 
     //Esc 버튼이 눌리게 될 경우 3가지 경로로 나뉘게 되며 만약 이미 띄워져 있는 UI 창이 있다면 Option Panel을 활성화 시키는 대신 이미 띄워져 있는 창을 내림
-    void Option()
+    public void Option()
     {
         isOption = !isOption;
         isLive = !isLive;
 
         option_panel.gameObject.SetActive(isOption);
+
         Time.timeScale = isOption == true ? 0 : 1;
+        SoundManager.instance.PlaySound("Pause In");
     }
  
 
@@ -220,6 +229,8 @@ public class GameManager : MonoBehaviour
 
         ++page;
         ChangePage();
+
+        SoundManager.instance.PlaySound("Button");
     }
 
     //버튼이 클릭될 시 호출되며 page 변수의 값을 감소시키고, ChangePage() 함수를 호출
@@ -229,6 +240,8 @@ public class GameManager : MonoBehaviour
 
         --page;
         ChangePage();
+
+        SoundManager.instance.PlaySound("Button");
     }
 
     // 각 오브젝트의 Sprite 또는 Text를 변경하여 마치 다음 페이지로 넘어가는 것처럼 구현
@@ -258,23 +271,31 @@ public class GameManager : MonoBehaviour
     }
 
 
-    // 구입 버튼 클릭 시 호출되며, 현재 소지하고 있는 flour의 값에 따라 젤리를 해금시킬 수 있음.
+    // 구입 버튼 클릭 시 호출되며, 현재 소지하고 있는 flour의 값에 따라 반죽을 해금시킬 수 있음.
     public void Unlock()
     {
-        if (flour < dough_flourlist[page]) return;
-
+        if (flour < dough_flourlist[page])
+        {
+            SoundManager.instance.PlaySound("Fail");
+            return;
+        }
         dough_unlock_list[page] = true;
         ChangePage();
 
         flour -= dough_flourlist[page];
+
+        SoundManager.instance.PlaySound("Unlock");
     }
 
 
     // 반죽(빵) 구매 기능
     public void BuyDough()
     {
-        if (gold < dough_goldlist[page] || dough_list.Count>=num_level*2) return; // 최대 젤리 수 제한
-
+        if (gold < dough_goldlist[page] || dough_list.Count >= num_level * 2)
+        {   // 최대 반죽 수 제한
+            SoundManager.instance.PlaySound("Fail");
+            return; 
+        }
         gold -= dough_goldlist[page];
 
         GameObject obj = Instantiate(prefab, new Vector3(0, 0, 0), Quaternion.identity);
@@ -284,6 +305,8 @@ public class GameManager : MonoBehaviour
         dough.sprite_renderer.sprite = dough_spritelist[page];
 
         dough_list.Add(dough);
+
+        SoundManager.instance.PlaySound("Buy");
     }
 
 
@@ -315,15 +338,21 @@ public class GameManager : MonoBehaviour
     }
 
 
-    void OnApplicationQuit()
+    public void Exit()
     {
         data_manager.JsonSave();
+        SoundManager.instance.PlaySound("Pause Out");
+        Application.Quit();
     }
 
     // 업그레이드 버튼이 눌렸을 경우 호출
     public void NumUpgrade()
     {
-        if (gold < num_gold_list[num_level]) return;
+        if (gold < num_gold_list[num_level])
+        {
+            SoundManager.instance.PlaySound("Fail");
+            return;
+        }
 
         gold -= num_gold_list[num_level++];
 
@@ -331,11 +360,17 @@ public class GameManager : MonoBehaviour
 
         if (num_level >= 5) num_btn.gameObject.SetActive(false);
         else num_btn_text.text = string.Format("{0:n0}", num_gold_list[num_level]);
+
+        SoundManager.instance.PlaySound("Unlock");
     }
 
     public void ClickUpgrade()
     {
-        if (gold < click_gold_list[click_level]) return;
+        if (gold < click_gold_list[click_level])
+        {
+            SoundManager.instance.PlaySound("Fail");
+            return;
+        }
 
         gold -= click_gold_list[click_level++];
 
@@ -343,6 +378,8 @@ public class GameManager : MonoBehaviour
 
         if (click_level >= 5) click_btn.gameObject.SetActive(false);
         else click_btn_text.text = string.Format("{0:n0}", click_gold_list[click_level]);
+
+        SoundManager.instance.PlaySound("Unlock");
     }
 
 }
