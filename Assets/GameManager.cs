@@ -64,6 +64,20 @@ public class GameManager : MonoBehaviour
     int page;
     int dough_ea;
 
+    public Text num_sub_text;
+    public Text num_btn_text;
+    public Button num_btn;
+
+    public Text click_sub_text;
+    public Text click_btn_text;
+    public Button click_btn;
+
+    public int[] num_gold_list;
+    public int[] click_gold_list;
+
+    public int num_level;
+    public int click_level;
+
     void Awake()
     {
         instance = this;
@@ -77,6 +91,9 @@ public class GameManager : MonoBehaviour
         gold_text.text = gold.ToString();
         unlock_group_gold_text.text = dough_goldlist[0].ToString();
         lock_group_flour_text.text = dough_flourlist[0].ToString();
+
+        num_btn_text.text = num_gold_list[1].ToString();
+        click_btn_text.text = click_gold_list[1].ToString();
 
         data_manager = data_manager_obj.GetComponent<DataManager>();
 
@@ -134,7 +151,7 @@ public class GameManager : MonoBehaviour
 
     public void GetFlour(int id, int level)
     {
-        flour += (id + 1) * level;
+        flour += (id + 1) * level * click_level; //click_level에 따라 클릭으로 얻는 flour의 양을 달라지게 함
 
         if (flour > max_flour)
             flour = max_flour;
@@ -256,7 +273,7 @@ public class GameManager : MonoBehaviour
     // 반죽(빵) 구매 기능
     public void BuyDough()
     {
-        if (gold < dough_goldlist[page]) return;
+        if (gold < dough_goldlist[page] || dough_list.Count>=num_level*2) return; // 최대 젤리 수 제한
 
         gold -= dough_goldlist[page];
 
@@ -286,6 +303,14 @@ public class GameManager : MonoBehaviour
             obj.name = "Dough " + dough.id;
 
             dough_list.Add(dough);
+
+            num_sub_text.text = "반죽 수용량 " + num_level * 2;
+            if (num_level >= 5) num_btn.gameObject.SetActive(false);
+            else num_btn_text.text = string.Format("{0:n0}", num_gold_list[num_level]);
+
+            click_sub_text.text = "클릭 생산량 X " + click_level;
+            if (click_level >= 5) click_btn.gameObject.SetActive(false);
+            else click_btn_text.text = string.Format("{0:n0}", click_gold_list[click_level]);
         }
     }
 
@@ -293,6 +318,31 @@ public class GameManager : MonoBehaviour
     void OnApplicationQuit()
     {
         data_manager.JsonSave();
+    }
+
+    // 업그레이드 버튼이 눌렸을 경우 호출
+    public void NumUpgrade()
+    {
+        if (gold < num_gold_list[num_level]) return;
+
+        gold -= num_gold_list[num_level++];
+
+        num_sub_text.text = "반죽 수용량 " + num_level * 2;
+
+        if (num_level >= 5) num_btn.gameObject.SetActive(false);
+        else num_btn_text.text = string.Format("{0:n0}", num_gold_list[num_level]);
+    }
+
+    public void ClickUpgrade()
+    {
+        if (gold < click_gold_list[click_level]) return;
+
+        gold -= click_gold_list[click_level++];
+
+        click_sub_text.text = "클릭 생산량 X " + click_level;
+
+        if (click_level >= 5) click_btn.gameObject.SetActive(false);
+        else click_btn_text.text = string.Format("{0:n0}", click_gold_list[click_level]);
     }
 
 }

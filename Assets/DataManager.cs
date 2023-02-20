@@ -8,8 +8,12 @@ public class SaveData
 {
     public int flour;
     public int gold;
+
     public bool[] dough_unlock_list = new bool[14]; //반죽의 개수 만큼 생성
     public List<Data> dough_list = new List<Data>();
+
+    public int num_level;
+    public int click_level;
 }
 
 
@@ -31,6 +35,10 @@ public class DataManager : MonoBehaviour
         {
             GameManager.instance.flour = 0;
             GameManager.instance.gold = 0;
+
+            GameManager.instance.num_level = 1;
+            GameManager.instance.click_level = 1;
+
             JsonSave();
         }
         else
@@ -44,8 +52,13 @@ public class DataManager : MonoBehaviour
                     GameManager.instance.dough_data_list.Add(save_data.dough_list[i]);
                 for (int i = 0; i < save_data.dough_unlock_list.Length; ++i)
                     GameManager.instance.dough_unlock_list[i] = save_data.dough_unlock_list[i];
+
                 GameManager.instance.flour = save_data.flour;
                 GameManager.instance.gold = save_data.gold;
+
+                GameManager.instance.num_level = save_data.num_level;
+                GameManager.instance.click_level = save_data.click_level;
+
             }
         }
     }
@@ -61,8 +74,12 @@ public class DataManager : MonoBehaviour
         }
         for (int i = 0; i < GameManager.instance.dough_unlock_list.Length; ++i)
             save_data.dough_unlock_list[i] = GameManager.instance.dough_unlock_list[i];
+
         save_data.flour = GameManager.instance.flour;
         save_data.gold = GameManager.instance.gold;
+
+        save_data.num_level = GameManager.instance.num_level;
+        save_data.click_level = GameManager.instance.click_level;
 
         string json = JsonUtility.ToJson(save_data, true);
 
