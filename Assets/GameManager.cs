@@ -10,61 +10,63 @@ public class GameManager : MonoBehaviour
     public int flour;
     public int gold;
 
-    public Text flour_text;
-    public Text gold_text;
+    public List<Dough> dough_list = new List<Dough>(); // 반죽을 사고 팜에 따라 현재 생성되어 있는 반죽을 저장하고 관리하기 위한 리스트
+    public List<Data> dough_data_list = new List<Data>();
 
-    void LateUpdate()
-    {
-        flour_text.text = string.Format("{0:n0}", (int)Mathf.SmoothStep(float.Parse(flour_text.text), flour, 0.5f));
-        gold_text.text = string.Format("{0:n0}", (int)Mathf.SmoothStep(float.Parse(gold_text.text), gold, 0.5f));
-    }
+    public bool[] dough_unlock_list; // 반죽의 해금 상태를 확인하기 위한 배열
 
+    public int max_flour;
+    public int max_gold;
 
-    //GameManager 내에 Animator 변경을 관리하기 위한 Animator 배열과 함수 추가
-    public RuntimeAnimatorController[] level_ac;
-    //반죽의 가격을 저장하기 위한 배열 변수
+    public bool isSell;
+    public bool isLive; // 게임의 활성화/비활성화 상태를 구분하기 위한 변수
+
+    //반죽의 Sprite, 이름, 가격을 저장하기 위한 배열 변수
+    public Sprite[] dough_spritelist;
+    public string[] dough_namelist;
+    public int[] dough_flourlist;
     public int[] dough_goldlist;
 
-    public Image dough_panel;
-    public Image plant_panel;
-    public Image option_panel;
-
-    Animator dough_anim;
-    Animator plant_anim;
-
-
-    public void ChangeAc(Animator anim, int level)
-    {
-        //Dough 스크립트에서 Animator 객체와 level을 받아와
-        //runtimeAnimatorController를 통해 해당젤리의 레벨에 따라 Animator를 변경
-        anim.runtimeAnimatorController = level_ac[level - 1];
-    }
-
-    //이벤트 발생 시 CheckSell() 함수를 실행하도록 설정
-    //Pointer Enter는 마우스 포인터가 해당 버튼 영역에 들어올 경우 발생하는 이벤트
-    //Pointer Exit는 마우스 포인터가 해당 버튼 영역에서 벗어날 경우 발생하는 이벤트
-    public bool isSell;
-
-    public bool isLive; // 게임의 활성화/비활성화 상태를 구분하기 위한 변수
+    //버튼 클릭에 따른 페이지 이동
+    public Text page_text;
+    public Image unlock_group_dough_img;
+    public Text unlock_group_gold_text;
+    public Text unlock_group_name_text;
 
     // Lock Group 오브젝트를 컨트롤하기 위한 변수
     public GameObject lock_group;
     public Image lock_group_dough_img;
     public Text lock_group_flour_text;
 
-    public bool[] dough_unlock_list; //반죽의 해금 상태를 확인하기 위한 배열
+    //GameManager 내에 Animator 변경을 관리하기 위한 Animator 배열과 함수 추가
+    public RuntimeAnimatorController[] level_ac;
 
-    public List<Dough> dough_list = new List<Dough>(); // 반죽을 사고 팜에 따라 현재 생성되어 있는 반죽을 저장하고 관리하기 위한 리스트
-    public List<Data> dough_data_list = new List<Data>();
+    public Text flour_text;
+    public Text gold_text;
+
+    public Image dough_panel;
+    public Image plant_panel;
+    public Image option_panel;
+
+    public GameObject prefab;
+
+    public GameObject data_manager_obj;
 
     DataManager data_manager;
-    public GameObject data_manager_obj;
+
+    Animator dough_anim;
+    Animator plant_anim;
+
+    bool isDoughClick;
+    bool isPlantClick;
+    bool isOption;
+
+    int page;
+    int dough_ea;
 
     void Awake()
     {
         instance = this;
-
-        isSell = false;
 
         dough_anim = dough_panel.GetComponent<Animator>();
         plant_anim = plant_panel.GetComponent<Animator>();
@@ -76,25 +78,47 @@ public class GameManager : MonoBehaviour
         unlock_group_gold_text.text = dough_goldlist[0].ToString();
         lock_group_flour_text.text = dough_flourlist[0].ToString();
 
-        dough_unlock_list = new bool[14];
-
-        for (int i = 0; i < 14; ++i)
-            if (PlayerPrefs.HasKey(i.ToString()))
-                dough_unlock_list[i] = true;
-        lock_group.gameObject.SetActive(!dough_unlock_list[page]);
-
-        //PlayerPrefs.DeleteAll(); //save 초기화 코드 (테스트 용)
-
         data_manager = data_manager_obj.GetComponent<DataManager>();
 
+        page = 0;
+        dough_ea = 14; //반죽 종류의 개수
+        dough_unlock_list = new bool[dough_ea];
+
     }
 
-    public void CheckSell()
+
+    void Start()
     {
-        isSell = isSell == false;
+        //DataManager에 의해 데이터가 로드되기 전에 GameManager가 활성화 되어 빈 데이터를 참조하는 현상을 방지하기 위함
+        Invoke("LoadData", 0.1f);
     }
 
-    public int max_gold;
+
+    void Update()
+    {
+        if (Input.GetButtonDown("Cancel"))
+        {
+            if (isDoughClick) ClickDoughBtn();
+            else if (isPlantClick) ClickPlantBtn();
+            else Option();
+        }
+    }
+
+
+    void LateUpdate()
+    {
+        flour_text.text = string.Format("{0:n0}", (int)Mathf.SmoothStep(float.Parse(flour_text.text), flour, 0.5f));
+        gold_text.text = string.Format("{0:n0}", (int)Mathf.SmoothStep(float.Parse(gold_text.text), gold, 0.5f));
+    }
+
+
+    public void ChangeAc(Animator anim, int level)
+    {
+        //Dough 스크립트에서 Animator 객체와 level을 받아와
+        //runtimeAnimatorController를 통해 해당젤리의 레벨에 따라 Animator를 변경
+        anim.runtimeAnimatorController = level_ac[level - 1];
+    }
+
 
     public void GetGold(int id, int level, Dough dough)
     {
@@ -106,7 +130,7 @@ public class GameManager : MonoBehaviour
         dough_list.Remove(dough);
     }
 
-    public int max_flour;
+
 
     public void GetFlour(int id, int level)
     {
@@ -117,8 +141,11 @@ public class GameManager : MonoBehaviour
     }
 
 
-    bool isDoughClick;
-    bool isPlantClick;
+    public void CheckSell()
+    {
+        isSell = isSell == false;
+    }
+
 
     //각각 버튼이 클릭 될 시 발생하며 이전에 만들었던 창을 오르 내리는 역할을 수행
     public void ClickDoughBtn()
@@ -157,7 +184,6 @@ public class GameManager : MonoBehaviour
         isLive = !isLive;
     }
 
-    bool isOption;
 
     //Esc 버튼이 눌리게 될 경우 3가지 경로로 나뉘게 되며 만약 이미 띄워져 있는 UI 창이 있다면 Option Panel을 활성화 시키는 대신 이미 띄워져 있는 창을 내림
     void Option()
@@ -168,35 +194,12 @@ public class GameManager : MonoBehaviour
         option_panel.gameObject.SetActive(isOption);
         Time.timeScale = isOption == true ? 0 : 1;
     }
-
-    void Update()
-    {
-        if (Input.GetButtonDown("Cancel"))
-        {
-            if (isDoughClick) ClickDoughBtn();
-            else if (isPlantClick) ClickPlantBtn();
-            else Option();
-        }
-    }
-
-    //반죽의 Sprite, 이름, 가격을 저장하기 위한 배열 변수
-    public Sprite[] dough_spritelist;
-    public string[] dough_namelist;
-    public int[] dough_flourlist;
-
-
-    //버튼 클릭에 따른 페이지 이동
-    public Text page_text;
-    public Image unlock_group_dough_img;
-    public Text unlock_group_gold_text;
-    public Text unlock_group_name_text;
-
-    int page;
+ 
 
     //버튼이 클릭될 시 호출되며 page 변수의 값을 증가시키고, ChangePage() 함수를 호출
     public void PageUp()
     {
-        if (page >= 13) return;
+        if (page >= dough_ea-1) return;
 
         ++page;
         ChangePage();
@@ -237,6 +240,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
+
     // 구입 버튼 클릭 시 호출되며, 현재 소지하고 있는 flour의 값에 따라 젤리를 해금시킬 수 있음.
     public void Unlock()
     {
@@ -246,16 +250,15 @@ public class GameManager : MonoBehaviour
         ChangePage();
 
         flour -= dough_flourlist[page];
-
-        PlayerPrefs.SetInt(page.ToString(), 1);
     }
 
-    // 반죽(빵) 구매 기능
-    public GameObject prefab;
 
+    // 반죽(빵) 구매 기능
     public void BuyDough()
     {
         if (gold < dough_goldlist[page]) return;
+
+        gold -= dough_goldlist[page];
 
         GameObject obj = Instantiate(prefab, new Vector3(0, 0, 0), Quaternion.identity);
         Dough dough = obj.GetComponent<Dough>();
@@ -263,16 +266,9 @@ public class GameManager : MonoBehaviour
         dough.id = page;
         dough.sprite_renderer.sprite = dough_spritelist[page];
 
-        gold -= dough_goldlist[page];
-
         dough_list.Add(dough);
     }
 
-    void Start()
-    {
-        //DataManager에 의해 데이터가 로드되기 전에 GameManager가 활성화 되어 빈 데이터를 참조하는 현상을 방지하기 위함
-        Invoke("LoadData", 0.1f); 
-    }
 
     void LoadData()
     {
@@ -292,6 +288,7 @@ public class GameManager : MonoBehaviour
             dough_list.Add(dough);
         }
     }
+
 
     void OnApplicationQuit()
     {

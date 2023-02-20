@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+
 
 public class Dough : MonoBehaviour
 {
@@ -16,29 +18,29 @@ public class Dough : MonoBehaviour
     public float required_exp; //50
     public float max_exp; //100
 
-    public GameManager game_manager; //GameManager에서 관리하는 재화 정보를 Jelly 스크립트 내에서 활용하기 위해 추가
+    public GameManager game_manager; //GameManager에서 관리하는 재화 정보를 Dough 스크립트 내에서 활용하기 위해 추가
+    public GameObject game_manager_obj;
+
+    public SpriteRenderer sprite_renderer;
+    public Animator anim;
+
+    float pick_time; // 단순 클릭과 드래그를 구분하기 위한 변수
 
     public int move_delay;	// 다음 이동까지의 딜레이 시간
     public int move_time;	// 이동 시간
 
     float speed_x;	// x축 방향 이동 속도
     float speed_y;	// y축 방향 이동 속도
+
     bool isWandering;
     bool isWalking;
-
-    public SpriteRenderer sprite_renderer;
-    public Animator anim;
+    
 
     //반죽에 따라 그림자의 크기와 위치를 다르게 함
     GameObject shadow;
     float shadow_pos_y;
     float shadow_scale_x;
     float shadow_scale_y;
-
-    //반죽 오브젝트가 prefab으로 변경되었기 때문에
-    //public을 사용해 유니티 프로그램으로 직접 오브젝트 객체를 받아왔던 기존 방식을 변경
-    //(GameManager, LeftTop, RightBottom)
-    public GameObject game_manager_obj;
 
     int flour_delay;
     bool isGetting;
@@ -94,6 +96,25 @@ public class Dough : MonoBehaviour
         shadow.transform.localPosition = new Vector3(0, shadow_pos_y, 0);
         shadow.transform.localScale = new Vector3(shadow_scale_x, shadow_scale_y, 0);
     }
+
+
+    void Update()
+    {
+        if (exp < max_exp)
+            exp += Time.deltaTime; //exp변수에 초당 1씩 더하면서
+
+
+        //GameManager 배열 변수 level_ac의 최대 크기는 3
+        //level up에 필요한 exp를 설정
+        //시간이 지남에 따라 자연스럽게 레벨이 상승
+        if (exp > required_exp * level && level < 3)
+            game_manager.ChangeAc(anim, ++level);
+
+        //자동 재화 획득 기능
+        if (!isGetting)
+            StartCoroutine(GetFlour());
+    }
+
 
     void FixedUpdate()
     {
@@ -170,25 +191,8 @@ public class Dough : MonoBehaviour
 
     }
 
-    void Update()
-    {
-        if (exp < max_exp)
-            exp += Time.deltaTime; //exp변수에 초당 1씩 더하면서
-
-
-        //GameManager 배열 변수 level_ac의 최대 크기는 3
-        //level up에 필요한 exp를 설정 (50)
-        //시간이 지남에 따라 자연스럽게 레벨이 상승
-        if (exp > required_exp * level && level < 3)
-            game_manager.ChangeAc(anim, ++level);
-
-        //자동 재화 획득 기능
-        if (!isGetting)
-            StartCoroutine(GetFlour());
-    }
 
     //반죽이 드래그 될 경우에만 실행되는 코드 (start)
-    float pick_time; // 단순 클릭과 드래그를 구분하기 위한 변수
 
     void OnMouseDrag()
     {

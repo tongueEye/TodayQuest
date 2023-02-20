@@ -8,7 +8,7 @@ public class SaveData
 {
     public int flour;
     public int gold;
-    public bool[] dough_unlock_list = new bool[14];
+    public bool[] dough_unlock_list = new bool[14]; //반죽의 개수 만큼 생성
     public List<Data> dough_list = new List<Data>();
 }
 
