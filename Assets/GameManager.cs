@@ -46,6 +46,7 @@ public class GameManager : MonoBehaviour
 
     public Image dough_panel;
     public Image plant_panel;
+    public Image quest_panel;
     public Image option_panel;
 
     public GameObject prefab;
@@ -56,9 +57,11 @@ public class GameManager : MonoBehaviour
 
     Animator dough_anim;
     Animator plant_anim;
+    Animator quest_anim;
 
     bool isDoughClick;
     bool isPlantClick;
+    bool isQuestClick;
     bool isOption;
 
     int page;
@@ -84,6 +87,7 @@ public class GameManager : MonoBehaviour
 
         dough_anim = dough_panel.GetComponent<Animator>();
         plant_anim = plant_panel.GetComponent<Animator>();
+        quest_anim = quest_panel.GetComponent<Animator>();
 
         isLive = true;
 
@@ -177,6 +181,13 @@ public class GameManager : MonoBehaviour
             isLive = true;
         }
 
+        if (isQuestClick)
+        {
+            quest_anim.SetTrigger("doHide");
+            isQuestClick = false;
+            isLive = true;
+        }
+
         if (isDoughClick)
             dough_anim.SetTrigger("doHide");
         else
@@ -197,12 +208,46 @@ public class GameManager : MonoBehaviour
             isLive = true;
         }
 
+        if (isQuestClick)
+        {
+            quest_anim.SetTrigger("doHide");
+            isQuestClick = false;
+            isLive = true;
+        }
+
         if (isPlantClick)
             plant_anim.SetTrigger("doHide");
         else
             plant_anim.SetTrigger("doShow");
 
         isPlantClick = !isPlantClick;
+        isLive = !isLive;
+
+        SoundManager.instance.PlaySound("Button");
+    }
+
+    public void ClickQuestBtn()
+    {
+        if (isDoughClick)
+        {
+            dough_anim.SetTrigger("doHide");
+            isDoughClick = false;
+            isLive = true;
+        }
+
+        if (isPlantClick)
+        {
+            plant_anim.SetTrigger("doHide");
+            isPlantClick = false;
+            isLive = true;
+        }
+
+        if (isQuestClick)
+            quest_anim.SetTrigger("doHide");
+        else
+            quest_anim.SetTrigger("doShow");
+
+        isQuestClick = !isQuestClick;
         isLive = !isLive;
 
         SoundManager.instance.PlaySound("Button");
