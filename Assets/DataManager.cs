@@ -37,8 +37,8 @@ public class DataManager : MonoBehaviour
 
         if (!File.Exists(path))
         {
-            GameManager.instance.flour = 0;
-            GameManager.instance.gold = 0;
+            GameManager.instance.flour = 11;
+            GameManager.instance.gold = 51;
 
             GameManager.instance.num_level = 1;
             GameManager.instance.click_level = 1;
