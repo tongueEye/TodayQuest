@@ -47,6 +47,7 @@ public class GameManager : MonoBehaviour
     public Image dough_panel;
     public Image plant_panel;
     public Image quest_panel;
+    public Image quest_edit_panel;
     public Image option_panel;
 
     public GameObject prefab;
@@ -62,6 +63,7 @@ public class GameManager : MonoBehaviour
     bool isDoughClick;
     bool isPlantClick;
     bool isQuestClick;
+    bool isQuestEditClick;
     bool isOption;
 
     int page;
@@ -80,6 +82,12 @@ public class GameManager : MonoBehaviour
 
     public int num_level;
     public int click_level;
+
+    //퀘스트 리스트 (스크롤 뷰)
+    public GameObject contents;
+    public GameObject uiListItemPrefab;
+
+
 
     void Awake()
     {
@@ -112,6 +120,13 @@ public class GameManager : MonoBehaviour
     {
         //DataManager에 의해 데이터가 로드되기 전에 GameManager가 활성화 되어 빈 데이터를 참조하는 현상을 방지하기 위함
         Invoke("LoadData", 0.1f);
+
+        /*
+        for(int i = 0; i < 5; i++)
+        {
+            Instantiate<GameObject>(this.uiListItemPrefab, contents.transform);
+        }
+        */
     }
 
 
@@ -121,6 +136,12 @@ public class GameManager : MonoBehaviour
         {
             if (isDoughClick) ClickDoughBtn();
             else if (isPlantClick) ClickPlantBtn();
+            else if (isQuestClick) ClickQuestBtn();
+            else if (isQuestEditClick)
+            {
+                ClickQuestEditBtn();
+                ClickQuestBtn();
+            }
             else Option();
         }
     }
@@ -188,6 +209,14 @@ public class GameManager : MonoBehaviour
             isLive = true;
         }
 
+        if (isQuestEditClick)
+        {
+            quest_anim.SetTrigger("doHide");
+            isQuestEditClick = false;
+            quest_edit_panel.gameObject.SetActive(isQuestEditClick);
+            isLive = true;
+        }
+
         if (isDoughClick)
             dough_anim.SetTrigger("doHide");
         else
@@ -212,6 +241,14 @@ public class GameManager : MonoBehaviour
         {
             quest_anim.SetTrigger("doHide");
             isQuestClick = false;
+            isLive = true;
+        }
+
+        if (isQuestEditClick)
+        {
+            quest_anim.SetTrigger("doHide");
+            isQuestEditClick = false;
+            quest_edit_panel.gameObject.SetActive(isQuestEditClick);
             isLive = true;
         }
 
@@ -242,6 +279,13 @@ public class GameManager : MonoBehaviour
             isLive = true;
         }
 
+        if (isQuestEditClick)
+        {
+            isQuestEditClick = false;
+            quest_edit_panel.gameObject.SetActive(isQuestEditClick);
+            isLive = true;
+        }
+
         if (isQuestClick)
             quest_anim.SetTrigger("doHide");
         else
@@ -249,6 +293,36 @@ public class GameManager : MonoBehaviour
 
         isQuestClick = !isQuestClick;
         isLive = !isLive;
+
+        SoundManager.instance.PlaySound("Button");
+    }
+
+    public void ClickQuestEditBtn()
+    {
+        if (isDoughClick)
+        {
+            dough_anim.SetTrigger("doHide");
+            isDoughClick = false;
+            isLive = true;
+        }
+
+        if (isPlantClick)
+        {
+            plant_anim.SetTrigger("doHide");
+            isPlantClick = false;
+            isLive = true;
+        }
+
+        if (isQuestClick)
+        {
+            isQuestClick = false;
+            isLive = true;
+        }
+
+        isQuestEditClick = !isQuestEditClick;
+        isLive = !isLive;
+
+        quest_edit_panel.gameObject.SetActive(isQuestEditClick);
 
         SoundManager.instance.PlaySound("Button");
     }
