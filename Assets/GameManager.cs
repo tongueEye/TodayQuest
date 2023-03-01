@@ -12,6 +12,7 @@ public class GameManager : MonoBehaviour
 
     public List<Dough> dough_list = new List<Dough>(); // 반죽을 사고 팜에 따라 현재 생성되어 있는 반죽을 저장하고 관리하기 위한 리스트
     public List<Data> dough_data_list = new List<Data>();
+    //public List<Quest> quest_data_list = new List<Quest>(); // To-Do List(퀘스트) 데이터를 저장하고 관리하기 위한 리스트
 
     public bool[] dough_unlock_list; // 반죽의 해금 상태를 확인하기 위한 배열
 
@@ -59,6 +60,7 @@ public class GameManager : MonoBehaviour
     Animator dough_anim;
     Animator plant_anim;
     Animator quest_anim;
+    Animator quest_edit_anim;
 
     bool isDoughClick;
     bool isPlantClick;
@@ -84,9 +86,10 @@ public class GameManager : MonoBehaviour
     public int click_level;
 
     //퀘스트 리스트 (스크롤 뷰)
-    public GameObject contents;
+    public GameObject list_contents;
+    public GameObject edit_contents;
     public GameObject uiListItemPrefab;
-
+    public GameObject uiListEditItemPrefab;
 
 
     void Awake()
@@ -96,6 +99,7 @@ public class GameManager : MonoBehaviour
         dough_anim = dough_panel.GetComponent<Animator>();
         plant_anim = plant_panel.GetComponent<Animator>();
         quest_anim = quest_panel.GetComponent<Animator>();
+        quest_edit_anim = quest_edit_panel.GetComponent<Animator>();
 
         isLive = true;
 
@@ -120,13 +124,6 @@ public class GameManager : MonoBehaviour
     {
         //DataManager에 의해 데이터가 로드되기 전에 GameManager가 활성화 되어 빈 데이터를 참조하는 현상을 방지하기 위함
         Invoke("LoadData", 0.1f);
-
-        /*
-        for(int i = 0; i < 5; i++)
-        {
-            Instantiate<GameObject>(this.uiListItemPrefab, contents.transform);
-        }
-        */
     }
 
 
@@ -137,11 +134,7 @@ public class GameManager : MonoBehaviour
             if (isDoughClick) ClickDoughBtn();
             else if (isPlantClick) ClickPlantBtn();
             else if (isQuestClick) ClickQuestBtn();
-            else if (isQuestEditClick)
-            {
-                ClickQuestEditBtn();
-                ClickQuestBtn();
-            }
+            else if (isQuestEditClick) ClickQuestEditBtn();
             else Option();
         }
     }
@@ -211,9 +204,8 @@ public class GameManager : MonoBehaviour
 
         if (isQuestEditClick)
         {
-            quest_anim.SetTrigger("doHide");
+            quest_edit_anim.SetTrigger("doHide");
             isQuestEditClick = false;
-            quest_edit_panel.gameObject.SetActive(isQuestEditClick);
             isLive = true;
         }
 
@@ -246,9 +238,8 @@ public class GameManager : MonoBehaviour
 
         if (isQuestEditClick)
         {
-            quest_anim.SetTrigger("doHide");
+            quest_edit_anim.SetTrigger("doHide");
             isQuestEditClick = false;
-            quest_edit_panel.gameObject.SetActive(isQuestEditClick);
             isLive = true;
         }
 
@@ -281,8 +272,8 @@ public class GameManager : MonoBehaviour
 
         if (isQuestEditClick)
         {
+            quest_edit_anim.SetTrigger("doHide");
             isQuestEditClick = false;
-            quest_edit_panel.gameObject.SetActive(isQuestEditClick);
             isLive = true;
         }
 
@@ -299,6 +290,7 @@ public class GameManager : MonoBehaviour
 
     public void ClickQuestEditBtn()
     {
+
         if (isDoughClick)
         {
             dough_anim.SetTrigger("doHide");
@@ -315,14 +307,19 @@ public class GameManager : MonoBehaviour
 
         if (isQuestClick)
         {
+            quest_anim.SetTrigger("doHide");
             isQuestClick = false;
             isLive = true;
         }
 
+
+        if (isQuestEditClick)
+            quest_edit_anim.SetTrigger("doHide");
+        else
+            quest_edit_anim.SetTrigger("doShow");
+
         isQuestEditClick = !isQuestEditClick;
         isLive = !isLive;
-
-        quest_edit_panel.gameObject.SetActive(isQuestEditClick);
 
         SoundManager.instance.PlaySound("Button");
     }
@@ -454,6 +451,7 @@ public class GameManager : MonoBehaviour
             if (click_level >= 5) click_btn.gameObject.SetActive(false);
             else click_btn_text.text = string.Format("{0:n0}", click_gold_list[click_level]);
         }
+
     }
 
 
@@ -500,5 +498,5 @@ public class GameManager : MonoBehaviour
 
         SoundManager.instance.PlaySound("Unlock");
     }
-
+    
 }
