@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using System;
 
 public class GameManager : MonoBehaviour
 {
@@ -51,6 +52,10 @@ public class GameManager : MonoBehaviour
     public Image quest_edit_panel;
     public Image option_panel;
 
+    public Image alert_panel1;
+    public Image alert_panel2;
+    public Image alert_panel3;
+
     public GameObject prefab;
 
     public GameObject data_manager_obj;
@@ -67,6 +72,10 @@ public class GameManager : MonoBehaviour
     bool isQuestClick;
     bool isQuestEditClick;
     bool isOption;
+
+    bool isReward;
+    bool isntReward1;
+    bool isntReward2;
 
     int page;
     int dough_ea;
@@ -91,6 +100,9 @@ public class GameManager : MonoBehaviour
     public GameObject uiListItemPrefab;
     public GameObject uiListEditItemPrefab;
 
+    // 보상권 관리 변수
+    public bool possibleGet=true;
+    public string getDay = "";
 
     void Awake()
     {
@@ -137,6 +149,7 @@ public class GameManager : MonoBehaviour
             else if (isQuestEditClick) ClickQuestEditBtn();
             else Option();
         }
+
     }
 
 
@@ -150,7 +163,7 @@ public class GameManager : MonoBehaviour
     public void ChangeAc(Animator anim, int level)
     {
         //Dough 스크립트에서 Animator 객체와 level을 받아와
-        //runtimeAnimatorController를 통해 해당젤리의 레벨에 따라 Animator를 변경
+        //runtimeAnimatorController를 통해 해당반죽의 레벨에 따라 Animator를 변경
         anim.runtimeAnimatorController = level_ac[level - 1];
         SoundManager.instance.PlaySound("Grow");
     }
@@ -336,7 +349,34 @@ public class GameManager : MonoBehaviour
         Time.timeScale = isOption == true ? 0 : 1;
         SoundManager.instance.PlaySound("Pause In");
     }
- 
+
+    public void RewardClick()
+    {
+        isReward = !isReward;
+        isLive = !isLive;
+
+        alert_panel1.gameObject.SetActive(isReward);
+        SoundManager.instance.PlaySound("Button");
+    }
+
+    public void RewardClickNo1()
+    {
+        isntReward1 = !isntReward1;
+        isLive = !isLive;
+
+        alert_panel2.gameObject.SetActive(isntReward1);
+        SoundManager.instance.PlaySound("Button");
+    }
+
+    public void RewardClickNo2()
+    {
+        isntReward2 = !isntReward2;
+        isLive = !isLive;
+
+        alert_panel3.gameObject.SetActive(isntReward2);
+        SoundManager.instance.PlaySound("Button");
+    }
+
 
     //버튼이 클릭될 시 호출되며 page 변수의 값을 증가시키고, ChangePage() 함수를 호출
     public void PageUp()
@@ -497,6 +537,66 @@ public class GameManager : MonoBehaviour
         else click_btn_text.text = string.Format("{0:n0}", click_gold_list[click_level]);
 
         SoundManager.instance.PlaySound("Unlock");
+    }
+
+    // to do list 를 모두 완료했을 때, 보상(골드)을 주는 시스템 - 하루에 한번만 받을 수 있게
+    public void GetReward()
+    {
+        //하루가 지나면(마지막으로 보상을 받은 날짜와 지금의 날짜가 다르면) 보상을 받을 수 있는 기회 생성
+        if (getDay != DateTime.Now.ToString(("dd")))
+        {
+            possibleGet = true;
+            Debug.Log("보상권이 발급되었습니다.");
+        }
+
+        GameObject check1 = GameObject.Find("Quest Panel/scrollView/list_contents/UIListItem/checkBox");
+        Toggle chk1 = check1.GetComponent<Toggle>();
+
+        GameObject check2 = GameObject.Find("Quest Panel/scrollView/list_contents/UIListItem2/checkBox");
+        Toggle chk2 = check2.GetComponent<Toggle>();
+
+        GameObject check3 = GameObject.Find("Quest Panel/scrollView/list_contents/UIListItem3/checkBox");
+        Toggle chk3 = check3.GetComponent<Toggle>();
+
+        GameObject check4 = GameObject.Find("Quest Panel/scrollView/list_contents/UIListItem4/checkBox");
+        Toggle chk4 = check4.GetComponent<Toggle>();
+
+        GameObject check5 = GameObject.Find("Quest Panel/scrollView/list_contents/UIListItem5/checkBox");
+        Toggle chk5 = check5.GetComponent<Toggle>();
+
+        //보상 버튼 클릭시 모든 to do list가 완료 상태이고,
+        if (chk1.isOn && chk2.isOn && chk3.isOn && chk4.isOn && chk5.isOn)
+        {
+            if (possibleGet)
+            {
+                RewardClick();
+                gold += 500; // 보상권이 있다면, 골드를 획득
+                Debug.Log("보상이 지급되었습니다.");
+
+                getDay = DateTime.Now.ToString(("dd")); //보상을 받은 날짜 저장
+
+                possibleGet = false; //보상권 사용처리
+
+                SoundManager.instance.PlaySound("Clear");
+            }
+            else
+            {
+                RewardClickNo1();
+                // to do list가 모두 완료된 상태여도 보상권이 없다면 보상을 받지 못함
+                Debug.Log("오늘의 보상을 이미 받았습니다. 내일 다시 도전해 주세요!");
+
+                SoundManager.instance.PlaySound("Fail");
+            }
+           
+        }
+        else
+        {
+            RewardClickNo2();
+            //to do list 가 완료되지 않은 상태면 보상을 받지 못함
+            Debug.Log("퀘스트를 완료해야 보상을 받을 수 있습니다.");
+
+            SoundManager.instance.PlaySound("Fail");
+        }
     }
     
 }

@@ -31,13 +31,15 @@ public class SaveData
     public bool done4;
     public bool done5;
 
+    public bool possibleRwd;
+    public string getRwdDay=" ";
+
 }
 
 
 public class DataManager : MonoBehaviour
 {
     string path;
-    //public InputField inputText;
 
     void Start()
     {
@@ -79,13 +81,6 @@ public class DataManager : MonoBehaviour
 
                 SoundManager.instance.bgm_slider.value = save_data.bgm_vol;
                 SoundManager.instance.sfx_slider.value = save_data.sfx_vol;
-
-                Debug.Log(save_data.toDoList1);
-                Debug.Log(save_data.toDoList2);
-                Debug.Log(save_data.toDoList3);
-                Debug.Log(save_data.toDoList4);
-                Debug.Log(save_data.toDoList5);
-
                 
                 GameObject toDoText1 = GameObject.Find("Quest Panel/scrollView/list_contents/UIListItem/Text");
                 Text toDo1 = toDoText1.GetComponent<Text>();
@@ -147,6 +142,9 @@ public class DataManager : MonoBehaviour
                 Toggle chk5 = check5.GetComponent<Toggle>();
                 chk5.isOn = save_data.done5;
 
+                GameManager.instance.possibleGet = save_data.possibleRwd;
+                GameManager.instance.getDay = save_data.getRwdDay;
+
             }
         }
     }
@@ -183,6 +181,9 @@ public class DataManager : MonoBehaviour
         save_data.done3 = QuestManager.check3;
         save_data.done4 = QuestManager.check4;
         save_data.done5 = QuestManager.check5;
+
+        save_data.possibleRwd = GameManager.instance.possibleGet;
+        save_data.getRwdDay = GameManager.instance.getDay;
 
         string json = JsonUtility.ToJson(save_data, true);
 
